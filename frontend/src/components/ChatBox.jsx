@@ -35,6 +35,8 @@ const Chatbox = () => {
         {messages.map((message, index) => (
           <Message key={index} message={message} />
         ))}
+
+        {/* Three Dots Loading */}
       </div>
 
       {/*Prompt Input Box */}
