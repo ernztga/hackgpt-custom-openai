@@ -34,7 +34,7 @@ export const AppContextProvider = ({ children }) => {
       fetchUsersChats();
     } else {
       setChats([]);
-      setSelectedChat(null);
+      setSelectedChat(dummyChats[0]);
     }
   }, [user]);
 
