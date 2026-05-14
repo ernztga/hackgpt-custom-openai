@@ -52,7 +52,7 @@ export const AppContextProvider = ({ children }) => {
     selectedChat,
     setSelectedChat,
     theme,
-    setTheme
+    setTheme,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
