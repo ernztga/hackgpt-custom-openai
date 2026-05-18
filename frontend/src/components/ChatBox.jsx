@@ -4,7 +4,7 @@ import { assets } from "../assets/assets";
 import Message from "./Message";
 import toast from "react-hot-toast";
 
-const Chatbox = () => {
+const ChatBox = () => {
   const containerRef = useRef(null);
 
   const { selectedChat, theme, user, axios, token, setUser } = useAppContext();
@@ -169,4 +169,4 @@ const Chatbox = () => {
   );
 };
 
-export default Chatbox;
+export default ChatBox;
