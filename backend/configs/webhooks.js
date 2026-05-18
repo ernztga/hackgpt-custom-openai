@@ -27,6 +27,7 @@ export const stripeWebhooks = async (req, res) => {
         });
 
         const session = sessionList.data[0];
+        console.log(`Session Metadata: ${JSON.stringify(session.metadata)}`);
         const { transactionid, appId } = session.metadata;
 
         if (appId === "hackgpt") {
@@ -40,6 +41,8 @@ export const stripeWebhooks = async (req, res) => {
             return res.json({ received: true });
           }
 
+          console.log(`Transaction ID: ${transaction._id}`);
+
           // Update credits in user account
           await User.updateOne(
             { _id: transaction.userId },
@@ -48,6 +51,9 @@ export const stripeWebhooks = async (req, res) => {
 
           // Update credit payment status
           transaction.isPaid = true;
+
+          console.log(`Transaction updated: ${JSON.stringify(transaction)}`);
+
           await transaction.save();
         } else {
           return res.json({
