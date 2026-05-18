@@ -1,4 +1,5 @@
-import Transaction from "../models/Transaction";
+import Transaction from "../models/Transaction.js";
+import Stripe from "stripe";
 
 const plans = [
   {
@@ -51,6 +52,8 @@ export const getPlans = async (req, res) => {
   }
 };
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 // API controller for purchasing a plan
 export const purchasePlan = async (req, res) => {
   try {
@@ -69,20 +72,33 @@ export const purchasePlan = async (req, res) => {
       planId: selectedPlan._id,
       amount: selectedPlan.price,
       credits: selectedPlan.credits,
-      isPaid: false
+      isPaid: false,
     });
 
-    // Update user's credits based on the selected plan
-    await User.updateOne(
-      { _id: userId },
-      { $inc: { credits: selectedPlan.credits } }
-    );
-
-    return res.json({
-      success: true,
-      message: `Successfully purchased ${selectedPlan.name} plan`,
-      creditsAdded: selectedPlan.credits,
+    const { origin } = req.headers;
+    const session = await stripe.checkout.sessions.create({
+      success_url: "https://example.com/success",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            unit_amount: selectedPlan.price * 100,
+            product_data: {
+              name: `${selectedPlan.name} Plan`,
+              description: `Purchase of ${selectedPlan.credits} credits for HackGPT`,
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${origin}/loading`,
+      cancel_url: `${origin}`,
+      metadata: { transactionId: transaction._id.toString(), appId: "hackgpt" },
+      expires_at: Math.floor(Date.now() / 1000) + 3600, // Session expires in 1 hour
     });
+
+    return res.json({ success: true, url: session.url });
   } catch (error) {
     console.error("Error purchasing plan:", error);
     return res.status(500).json({ success: false, message: error.message });
