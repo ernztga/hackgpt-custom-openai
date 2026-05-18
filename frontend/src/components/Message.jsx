@@ -37,7 +37,7 @@ const Message = ({ message }) => {
           <span className="text-xs text-gray-400 fark:text-[#B1A6C0]">
             {moment(message.timestamp).fromNow()}
           </span>
-          <p className="text-sm dark:text-primary">{message.content}</p>
+          {/* <p className="text-sm dark:text-primary">{message.content}</p> */}
         </div>
       )}
     </div>

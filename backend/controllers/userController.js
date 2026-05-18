@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Chat from "../models/Chat.js";
+import mongoose from "mongoose";
 
 // Generate JWT
 const generateToken = (id) => {
@@ -51,7 +52,7 @@ export const loginUser = async (req, res) => {
     }
 
     // Check password - Note: You should implement password comparison using bcrypt here
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res
         .status(400)
@@ -88,7 +89,6 @@ export const getPublishedImages = async (req, res) => {
 
     // Fetch published images for the user
     const publishedImageMessages = await Chat.aggregate([
-      { $match: { userId } },
       { $unwind: "$messages" },
       { $match: { "messages.isImage": true, "messages.isPublished": true } },
       {
@@ -99,6 +99,8 @@ export const getPublishedImages = async (req, res) => {
         },
       },
     ]);
+
+    console.log("Published Images:", publishedImageMessages);
 
     return res.json({
       success: true,
