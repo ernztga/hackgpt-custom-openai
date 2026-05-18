@@ -13,6 +13,13 @@ const app = express();
 
 await connectDB();
 
+// Stripe Webhook first
+app.post(
+  "/api/stripe",
+  express.raw({ type: "application/json" }),
+  stripeWebhooks,
+);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -26,13 +33,6 @@ app.use("/api/user", userRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/message", messageRouter);
 app.use("/api/credit", creditRouter);
-
-// Stripe Webhooks
-app.post(
-  "/api/stripe",
-  express.raw({ type: "application/json" }),
-  stripeWebhooks,
-);
 
 const PORT = process.env.PORT || 3000;
 
