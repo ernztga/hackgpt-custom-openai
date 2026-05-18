@@ -11,7 +11,7 @@ export const stripeWebhooks = async (req, res) => {
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET,
+      process.env.STRIPE_WEBHOOK_SECRET_KEY,
     );
   } catch (err) {
     console.log(`Webhook signature verification failed: ${err.message}`);
@@ -27,6 +27,7 @@ export const stripeWebhooks = async (req, res) => {
         });
 
         const session = sessionList.data[0];
+        console.log(`Session Metadata: ${JSON.stringify(session.metadata)}`);
         const { transactionid, appId } = session.metadata;
 
         if (appId === "hackgpt") {
@@ -34,6 +35,13 @@ export const stripeWebhooks = async (req, res) => {
             _id: transactionid,
             isPaid: false,
           });
+
+          if (!transaction) {
+            console.log("Transaction not found or already paid");
+            return res.json({ received: true });
+          }
+
+          console.log(`Transaction ID: ${transaction._id}`);
 
           // Update credits in user account
           await User.updateOne(
@@ -43,6 +51,9 @@ export const stripeWebhooks = async (req, res) => {
 
           // Update credit payment status
           transaction.isPaid = true;
+
+          console.log(`Transaction updated: ${JSON.stringify(transaction)}`);
+
           await transaction.save();
         } else {
           return res.json({
