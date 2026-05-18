@@ -51,7 +51,7 @@ export const loginUser = async (req, res) => {
     }
 
     // Check password - Note: You should implement password comparison using bcrypt here
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res
         .status(400)
