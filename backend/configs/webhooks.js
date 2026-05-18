@@ -11,7 +11,7 @@ export const stripeWebhooks = async (req, res) => {
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET,
+      process.env.STRIPE_WEBHOOK_SECRET_KEY,
     );
   } catch (err) {
     console.log(`Webhook signature verification failed: ${err.message}`);
@@ -27,7 +27,6 @@ export const stripeWebhooks = async (req, res) => {
         });
 
         const session = sessionList.data[0];
-        console.log("Session Metadata:", JSON.stringify(session.metadata));
         const { transactionid, appId } = session.metadata;
 
         if (appId === "hackgpt") {
