@@ -27,6 +27,7 @@ export const stripeWebhooks = async (req, res) => {
         });
 
         const session = sessionList.data[0];
+        console.log("Session Metadata:", JSON.stringify(session.metadata));
         const { transactionid, appId } = session.metadata;
 
         if (appId === "hackgpt") {
@@ -34,6 +35,11 @@ export const stripeWebhooks = async (req, res) => {
             _id: transactionid,
             isPaid: false,
           });
+
+          if (!transaction) {
+            console.log("Transaction not found or already paid");
+            return res.json({ received: true });
+          }
 
           // Update credits in user account
           await User.updateOne(
