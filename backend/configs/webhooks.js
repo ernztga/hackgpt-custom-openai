@@ -36,11 +36,6 @@ export const stripeWebhooks = async (req, res) => {
             isPaid: false,
           });
 
-          if (!transaction) {
-            console.log("Transaction not found or already paid");
-            return res.json({ received: true });
-          }
-
           console.log(`Transaction ID: ${transaction._id}`);
 
           // Update credits in user account
