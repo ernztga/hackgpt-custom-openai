@@ -26,6 +26,15 @@ export const textMessageController = async (req, res) => {
         .json({ success: false, message: "Chat not found for user" });
     }
 
+    // ✅ Save user message
+    const userMessage = {
+      role: "user",
+      content: prompt,
+      timestamp: Date.now(),
+      isImage: false,
+    };
+    chat.messages.push(userMessage);
+
     // Call Gemini API to get AI response
     const response = await openai.chat.completions.create({
       model: "gemini-3-flash-preview",
@@ -42,7 +51,6 @@ export const textMessageController = async (req, res) => {
       timestamp: Date.now(),
       isImage: false,
     };
-    res.json({ success: true, reply });
 
     // Add the new message to the chat's messages array
     chat.messages.push(reply);
@@ -50,6 +58,8 @@ export const textMessageController = async (req, res) => {
     // Save the updated chat document
     await chat.save();
     await User.updateOne({ _id: userId }, { $inc: { credits: -1 } });
+
+    return res.json({ success: true, reply });
   } catch (error) {
     console.error("Error adding message:", error);
     return res.status(500).json({ success: false, message: error.message });
@@ -111,11 +121,9 @@ export const imageMessageController = async (req, res) => {
       role: "assistant",
       content: uploadResponse.url,
       timestamp: Date.now(),
-      isImage: false,
+      isImage: true,
       isPublished: isPublished || false,
     };
-
-    res.json({ success: true, reply });
 
     // Add the new message to the chat's messages array
     chat.messages.push(reply);
@@ -123,6 +131,8 @@ export const imageMessageController = async (req, res) => {
     // Save the updated chat document
     await chat.save();
     await User.updateOne({ _id: userId }, { $inc: { credits: -2 } });
+
+    return res.json({ success: true, reply });
   } catch (error) {
     console.error("Error adding message:", error);
     return res.status(500).json({ success: false, message: error.message });
