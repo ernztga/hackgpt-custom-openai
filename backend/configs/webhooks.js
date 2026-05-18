@@ -28,13 +28,23 @@ export const stripeWebhooks = async (req, res) => {
 
         const session = sessionList.data[0];
         console.log(`Session Metadata: ${JSON.stringify(session.metadata)}`);
-        const { transactionid, appId } = session.metadata;
+        const { transactionId, appId } = session.metadata;
 
         if (appId === "hackgpt") {
           const transaction = await Transaction.findOne({
-            _id: transactionid,
+            _id: transactionId,
             isPaid: false,
           });
+
+          if (!transaction) {
+            console.log(
+              `Transaction not found or already processed: ${transactionId}`,
+            );
+            return res.json({
+              received: true,
+              message: "Transaction not found or already processed",
+            });
+          }
 
           console.log(`Transaction ID: ${transaction._id}`);
 
